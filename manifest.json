@@ -10,3 +10,11 @@
   "theme_color": "#ffffff",
   "description": "An app to rate the best cakes for the wedding"
 }
+
+"icons": [
+  {
+    "src": "/launchericon-192x192.png",
+    "sizes": "192x192",
+    "type": "image/png"
+  }
+]
