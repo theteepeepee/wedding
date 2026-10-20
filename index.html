@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Tom & Sophie's Wedding Cake Rating App</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Google Fonts: Cormorant Garamond / Playfair Display + Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Canvas Confetti Library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sage: {
+              50: '#f4f6f4',
+              100: '#e3e8e3',
+              200: '#c5d1c5',
+              600: '#6d826d',
+              700: '#556b2f',
+              800: '#435427',
+              900: '#34421f',
+            },
+            champagne: {
+              100: '#fdf8ec',
+              200: '#f7ebd0',
+              500: '#d4af37',
+              600: '#b89228',
+              700: '#91711a',
+            },
+            ivory: {
+              50: '#fafaf7',
+              100: '#f4f4ee',
+              200: '#e8e8dc',
+              800: '#3d3d35',
+            },
+            blush: {
+              50: '#fdf6f6',
+              100: '#f9eae9',
+              500: '#e8a598',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            serif: ['Cormorant Garamond', 'Georgia', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Mobile Shell & Theme Scrollbars */
+    body {
+      background-color: #232723;
+      font-family: 'Inter', sans-serif;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #8a9a86;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Screen Transitions */
+    .view-screen {
+      transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+    }
+    .view-screen.hidden-screen {
+      display: none;
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    .view-screen.active-screen {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body class="flex justify-center items-center min-h-screen p-0 sm:p-4">
+
+  <!-- Mobile Device Container -->
+  <div class="w-full max-w-md h-[100vh] sm:h-[844px] bg-ivory-50 sm:rounded-[40px] shadow-2xl flex flex-col overflow-hidden relative border-0 sm:border-[8px] border-sage-900">
+
+    <!-- Top Status Bar Mockup -->
+    <div class="bg-ivory-50 pt-2 px-6 pb-1 flex justify-between items-center text-xs text-sage-900 font-semibold z-30 select-none">
+      <span>9:41</span>
+      <div class="w-20 h-4 bg-sage-900/10 rounded-full flex justify-center items-center">
+        <div class="w-10 h-2 bg-sage-900/20 rounded-full"></div>
+      </div>
+      <div class="flex items-center space-x-1.5">
+        <i class="fa-solid fa-signal text-[10px]"></i>
+        <i class="fa-solid fa-wifi text-[10px]"></i>
+        <i class="fa-solid fa-battery-full text-xs"></i>
+      </div>
+    </div>
+
+    <!-- Header Section -->
+    <header class="bg-gradient-to-b from-ivory-50 via-ivory-50/90 to-transparent px-5 pt-2 pb-3 z-20 flex justify-between items-center border-b border-sage-200/60">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-sage-600 to-sage-800 text-white flex items-center justify-center shadow-md text-lg font-serif italic font-bold shrink-0">
+          🥂
+        </div>
+        <div>
+          <h1 class="font-serif text-lg font-bold text-sage-900 tracking-tight leading-none">Tom & Sophie's</h1>
+          <p class="text-[11px] font-serif italic text-champagne-600 font-semibold tracking-wide">Wedding Cake Rating App</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Subtitle Banner -->
+    <div class="bg-champagne-100/80 px-4 py-1.5 text-center border-b border-champagne-200 text-[11px] text-sage-900 font-serif italic">
+      "Help Tom & Sophie rank the best wedding cakes & dessert slices!"
+    </div>
+
+    <!-- Main Content Container (Scrollable) -->
+    <main id="app-content" class="flex-1 overflow-y-auto px-4 py-3 relative no-scrollbar">
+
+      <!-- ==================== TAB 1: LEADERBOARD ==================== -->
+      <section id="tab-leaderboard" class="view-screen active-screen space-y-3.5">
+        
+        <!-- Category Pill Filters -->
+        <div class="flex items-center space-x-1.5 bg-sage-100/70 p-1 rounded-2xl border border-sage-200">
+          <button onclick="setCategoryFilter('All')" id="filter-all" class="flex-1 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm bg-sage-700 text-white">
+            All Desserts
+          </button>
+          <button onclick="setCategoryFilter('Wedding Cake')" id="filter-wedding cake" class="flex-1 py-1.5 rounded-xl text-xs font-semibold text-sage-800 hover:bg-ivory-50 transition-all">
+            🎂 Cakes
+          </button>
+          <button onclick="setCategoryFilter('Dessert Slice')" id="filter-dessert slice" class="flex-1 py-1.5 rounded-xl text-xs font-semibold text-sage-800 hover:bg-ivory-50 transition-all">
+            🍰 Slices
+          </button>
+        </div>
+
+        <!-- Search & Sort Bar -->
+        <div class="space-y-2">
+          <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-sage-600/50 text-xs"></i>
+            <input type="text" id="search-input" placeholder="Search baker or flavor tier..." 
+              class="w-full pl-9 pr-8 py-2 bg-white rounded-xl text-xs font-medium border border-sage-200 focus:outline-none focus:ring-2 focus:ring-sage-600 shadow-sm text-sage-900" 
+              oninput="renderLeaderboard()" />
+            <button id="clear-search" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-sage-600/50 hover:text-sage-800 text-xs">
+              <i class="fa-solid fa-circle-xmark"></i>
+            </button>
+          </div>
+
+          <div class="flex justify-between items-center text-xs px-1">
+            <span class="text-sage-800/70 font-medium text-[11px]" id="item-count-label">Showing 0 entries</span>
+            <div class="flex items-center space-x-1">
+              <span class="text-sage-800/60 text-[11px]">Sort by:</span>
+              <select id="sort-select" onchange="renderLeaderboard()" class="bg-transparent font-semibold text-sage-900 text-xs focus:outline-none cursor-pointer">
+                <option value="rating">Highest Score</option>
+                <option value="cost-low">Lowest Cost / Serving</option>
+                <option value="cost-high">Highest Cost / Serving</option>
+                <option value="recent">Most Recent</option>
+                <option value="bakery">Baker (A-Z)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leaderboard List -->
+        <div id="leaderboard-list" class="space-y-3 pb-20">
+          <!-- Dynamically filled by JS -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden text-center py-12 px-4 space-y-3">
+          <div class="w-16 h-16 mx-auto bg-sage-100 rounded-full flex items-center justify-center text-3xl">
+            🎂
+          </div>
+          <h3 class="font-serif text-lg font-bold text-sage-900">No Tastings Found</h3>
+          <p class="text-xs text-sage-800/70 max-w-xs mx-auto">We couldn't find any wedding cakes or slices matching your search criteria.</p>
+          <button onclick="clearSearch(); setCategoryFilter('All');" class="px-4 py-2 bg-sage-700 text-white rounded-xl text-xs font-semibold shadow hover:bg-sage-800">
+            Clear Search
+          </button>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 2: ADD / EDIT REVIEW ==================== -->
+      <section id="tab-add" class="view-screen hidden-screen space-y-4 pb-24">
+        <div class="flex items-center justify-between border-b border-sage-200 pb-2">
+          <div>
+            <h2 id="form-title" class="font-serif text-lg font-bold text-sage-900">Rate a Tasting Sample</h2>
+            <p class="text-[11px] text-sage-800/70">Help Tom & Sophie pick their wedding menu!</p>
+          </div>
+          <button id="cancel-edit-btn" onclick="cancelEdit()" class="hidden text-xs text-red-600 font-semibold bg-red-50 px-2.5 py-1 rounded-full">
+            Cancel
+          </button>
+        </div>
+
+        <form id="rating-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
+          <input type="hidden" id="edit-id" value="" />
+
+          <!-- Category Selection -->
+          <div>
+            <label class="block text-xs font-semibold text-sage-800 mb-1">Dessert Type <span class="text-champagne-600">*</span></label>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="cursor-pointer">
+                <input type="radio" name="form-category" value="Wedding Cake" class="peer hidden" checked />
+                <div class="p-2.5 text-center bg-white rounded-xl border border-sage-200 text-xs font-semibold peer-checked:bg-sage-700 peer-checked:text-white peer-checked:border-sage-700 transition shadow-sm flex items-center justify-center gap-1.5">
+                  <span>🎂</span> Wedding Cake
+                </div>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="form-category" value="Dessert Slice" class="peer hidden" />
+                <div class="p-2.5 text-center bg-white rounded-xl border border-sage-200 text-xs font-semibold peer-checked:bg-sage-700 peer-checked:text-white peer-checked:border-sage-700 transition shadow-sm flex items-center justify-center gap-1.5">
+                  <span>🍰</span> Dessert Slice
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Item Name & Baker/Location -->
+          <div class="space-y-3">
+            <div>
+              <label for="item-name" class="block text-xs font-semibold text-sage-800 mb-1">Sample / Flavor Name <span class="text-champagne-600">*</span></label>
+              <input type="text" id="item-name" required placeholder="e.g. Tier 1: Raspberry & White Choc Sponge" 
+                class="w-full px-3 py-2 bg-white rounded-xl text-xs font-medium border border-sage-200 focus:outline-none focus:ring-2 focus:ring-sage-600 text-sage-900" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label for="bakery-name" class="block text-xs font-semibold text-sage-800 mb-1">Baker / Caterer <span class="text-champagne-600">*</span></label>
+                <input type="text" id="bakery-name" required placeholder="e.g. Sweet Artistry Bakery" 
+                  class="w-full px-3 py-2 bg-white rounded-xl text-xs font-medium border border-sage-200 focus:outline-none focus:ring-2 focus:ring-sage-600 text-sage-900" />
+              </div>
+              <div>
+                <label for="bakery-location" class="block text-xs font-semibold text-sage-800 mb-1">Location / City</label>
+                <input type="text" id="bakery-location" placeholder="e.g. Melbourne, Vic" 
+                  class="w-full px-3 py-2 bg-white rounded-xl text-xs font-medium border border-sage-200 focus:outline-none focus:ring-2 focus:ring-sage-600 text-sage-900" />
+              </div>
+            </div>
+
+            <!-- Cost Per Serving Input Field -->
+            <div class="bg-white p-3 rounded-xl border border-sage-200 space-y-1.5">
+              <div class="flex justify-between items-center">
+                <label for="cost-per-serving" class="text-xs font-semibold text-sage-800 flex items-center gap-1">
+                  <i class="fa-solid fa-tag text-champagne-600"></i> Cost Per Serving ($) <span class="text-champagne-600">*</span>
+                </label>
+                <button type="button" onclick="toggleCalcModal()" class="text-[10px] text-sage-700 font-semibold underline hover:text-sage-900">
+                  <i class="fa-solid fa-calculator mr-0.5"></i> Estimate from Total
+                </button>
+              </div>
+              
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sage-800/60 font-semibold text-xs">$</span>
+                <input type="number" id="cost-per-serving" step="0.05" min="0" placeholder="e.g. 6.50" required
+                  class="w-full pl-7 pr-16 py-2 bg-ivory-50/50 rounded-xl text-xs font-bold border border-sage-200 focus:outline-none focus:ring-2 focus:ring-sage-600 text-sage-900" />
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-sage-800/60 font-medium">/ portion</span>
+              </div>
+              <p class="text-[10px] text-sage-800/60 italic">Used to rank and compare caterer value against wedding budget.</p>
+
+              <!-- Quick Helper Calculator Tool -->
+              <div id="calc-tool" class="hidden mt-2 pt-2 border-t border-sage-100 space-y-2 bg-sage-50/80 p-2.5 rounded-lg">
+                <p class="text-[10px] font-bold text-sage-900">Quick Portion Price Estimator:</p>
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <span class="text-[9px] font-semibold text-sage-800">Total Quote ($)</span>
+                    <input type="number" id="calc-total" placeholder="e.g. 650" oninput="runCostCalc()" class="w-full p-1.5 text-xs bg-white border border-sage-200 rounded" />
+                  </div>
+                  <div>
+                    <span class="text-[9px] font-semibold text-sage-800">Guest Count</span>
+                    <input type="number" id="calc-guests" placeholder="e.g. 100" oninput="runCostCalc()" class="w-full p-1.5 text-xs bg-white border border-sage-200 rounded" />
+                  </div>
+                </div>
+                <div class="flex justify-between items-center text-[10px] pt-1">
+                  <span class="text-sage-800 font-medium">Estimated: <strong id="calc-result" class="text-champagne-600">$0.00 / slice</strong></span>
+                  <button type="button" onclick="applyCostCalc()" class="px-2 py-1 bg-sage-700 text-white rounded font-semibold text-[10px] hover:bg-sage-800">Apply</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Photo / Icon Selection -->
+          <div>
+            <label class="block text-xs font-semibold text-sage-800 mb-1">Photo or Wedding Icon</label>
+            <div class="bg-white p-3 rounded-xl border border-sage-200 space-y-2">
+              <div class="flex items-center space-x-3">
+                <div id="image-preview-container" class="w-14 h-14 rounded-lg bg-sage-50 flex items-center justify-center overflow-hidden border border-sage-200 text-2xl shrink-0">
+                  <span id="preview-emoji">🎂</span>
+                  <img id="preview-img" class="w-full h-full object-cover hidden" src="" alt="Preview" />
+                </div>
+                <div class="flex-1 space-y-1">
+                  <label class="inline-block text-xs px-3 py-1.5 bg-sage-100 hover:bg-sage-200 text-sage-800 rounded-lg cursor-pointer font-semibold border border-sage-200 transition">
+                    <i class="fa-solid fa-camera mr-1 text-champagne-600"></i> Upload Cake Photo
+                    <input type="file" id="image-upload" accept="image/*" class="hidden" onchange="handleImageUpload(event)" />
+                  </label>
+                  <p class="text-[10px] text-sage-800/60">Or choose a wedding icon preset:</p>
+                </div>
+              </div>
+
+              <!-- Preset Emoji Avatars -->
+              <div class="flex gap-1.5 pt-1 overflow-x-auto no-scrollbar">
+                <button type="button" onclick="selectEmojiPreset('🎂')" class="w-8 h-8 rounded-lg bg-ivory-100 hover:bg-sage-100 flex items-center justify-center text-base border border-sage-200 shrink-0">🎂</button>
+                <button type="button" onclick="selectEmojiPreset('🍰')" class="w-8 h-8 rounded-lg bg-ivory-100 hover:bg-sage-100 flex items-center justify-center text-base border border-sage-200 shrink-0">🍰</button>
+                <button type="button" onclick="selectEmojiPreset('🥂')" class="w-8 h-8 rounded-lg bg-ivory-100 hover:bg-sage-100 flex items-center justify-center text-base border border-sage-200 shrink-0">🥂</button>
+                <button type="button" onclick="selectEmojiPreset('💒')" class="w-8 h-8 rounded-lg bg-ivory-100 hover:bg-sage-100 flex items-center justify-center text-base border border-sage-200 shrink-0">💒</button>
+                <button type="button" onclick="selectEmojiPreset('🍓')" class="w-8 h-8 rounded-lg bg-ivory-100 hover:bg-sage-100 flex items-center justify-center text-base border border-sage-200 shrink-0">🍓</button>
+                <button type="button" onclick="selectEmojiPreset('🍫')" class="w-8 h-8 rounded-lg bg-ivory-100 hover:bg-sage-100 flex items-center justify-center text-base border border-sage-200 shrink-0">🍫</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detailed Breakdown Criteria -->
+          <div class="bg-white p-3 rounded-xl border border-sage-200 space-y-3">
+            <h3 class="text-xs font-bold text-sage-900 border-b border-sage-100 pb-1 flex justify-between items-center">
+              <span>Wedding Evaluation Criteria</span>
+              <span class="text-champagne-600 font-serif text-sm font-bold" id="calc-overall-score">4.0 ⭐</span>
+            </h3>
+
+            <!-- Criteria 1: Flavor & Moisture -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px] font-semibold text-sage-800">
+                <span>1. Flavor & Moisture</span>
+                <span id="score-flavor-val" class="text-champagne-600 font-bold">4.0</span>
+              </div>
+              <input type="range" id="score-flavor" min="1" max="5" step="0.5" value="4.0" 
+                class="w-full accent-sage-700 h-1.5 bg-sage-100 rounded-lg cursor-pointer" oninput="updateCalculatedScore()" />
+            </div>
+
+            <!-- Criteria 2: Structure & Layering -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px] font-semibold text-sage-800">
+                <span>2. Structure & Layering</span>
+                <span id="score-texture-val" class="text-champagne-600 font-bold">4.0</span>
+              </div>
+              <input type="range" id="score-texture" min="1" max="5" step="0.5" value="4.0" 
+                class="w-full accent-sage-700 h-1.5 bg-sage-100 rounded-lg cursor-pointer" oninput="updateCalculatedScore()" />
+            </div>
+
+            <!-- Criteria 3: Icing & Presentation -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px] font-semibold text-sage-800">
+                <span>3. Icing & Presentation</span>
+                <span id="score-icing-val" class="text-champagne-600 font-bold">4.0</span>
+              </div>
+              <input type="range" id="score-icing" min="1" max="5" step="0.5" value="4.0" 
+                class="w-full accent-sage-700 h-1.5 bg-sage-100 rounded-lg cursor-pointer" oninput="updateCalculatedScore()" />
+            </div>
+
+            <!-- Criteria 4: Value / Sliceability -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px] font-semibold text-sage-800">
+                <span>4. Value / Portion Sliceability</span>
+                <span id="score-value-val" class="text-champagne-600 font-bold">4.0</span>
+              </div>
+              <input type="range" id="score-value" min="1" max="5" step="0.5" value="4.0" 
+                class="w-full accent-sage-700 h-1.5 bg-sage-100 rounded-lg cursor-pointer" oninput="updateCalculatedScore()" />
+            </div>
+          </div>
+
+          <!-- Tasting Tags Selection -->
+          <div>
+            <label class="block text-xs font-semibold text-sage-800 mb-1">Tasting Tags</label>
+            <div id="tag-pills-container" class="flex flex-wrap gap-1.5">
+              <!-- Preset tag buttons -->
+            </div>
+          </div>
+
+          <!-- Tasting Notes -->
+          <div>
+            <label for="tasting-notes" class="block text-xs font-semibold text-sage-800 mb-1">Tasting Review & Notes</label>
+            <textarea id="tasting-notes" rows="3" placeholder="Notes on sweetness, buttercream finish, wedding guest appeal..." 
+              class="w-full px-3 py-2 bg-white rounded-xl text-xs font-medium border border-sage-200 focus:outline-none focus:ring-2 focus:ring-sage-600 text-sage-900"></textarea>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" id="submit-form-btn" class="w-full py-3 bg-gradient-to-r from-sage-700 to-sage-800 text-white rounded-xl font-semibold text-sm shadow-md hover:brightness-105 active:scale-[0.99] transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-heart text-champagne-500"></i> Save Rating & Rank Dessert
+          </button>
+        </form>
+      </section>
+
+      <!-- ==================== TAB 3: FEED & STATS ==================== -->
+      <section id="tab-stats" class="view-screen hidden-screen space-y-4 pb-24">
+        <div>
+          <h2 class="font-serif text-lg font-bold text-sage-900">Tom & Sophie's Cake Dashboard</h2>
+          <p class="text-[11px] text-sage-800/70">Tasting analytics, cost breakdowns, and top bakers.</p>
+        </div>
+
+        <!-- Metrics Cards -->
+        <div class="grid grid-cols-3 gap-2">
+          <div class="bg-white p-2.5 rounded-2xl border border-sage-200 text-center shadow-sm">
+            <span class="block text-lg font-bold font-serif text-sage-700" id="stat-total-count">0</span>
+            <span class="text-[9px] text-sage-800/70 uppercase font-semibold">Sampled</span>
+          </div>
+          <div class="bg-white p-2.5 rounded-2xl border border-sage-200 text-center shadow-sm">
+            <span class="block text-lg font-bold font-serif text-champagne-600" id="stat-avg-score">0.0</span>
+            <span class="text-[9px] text-sage-800/70 uppercase font-semibold">Avg Score</span>
+          </div>
+          <div class="bg-white p-2.5 rounded-2xl border border-sage-200 text-center shadow-sm">
+            <span class="block text-lg font-bold font-serif text-sage-800" id="stat-avg-cost">$0.00</span>
+            <span class="text-[9px] text-sage-800/70 uppercase font-semibold">Avg / Portion</span>
+          </div>
+        </div>
+
+        <!-- Category Ratio Bar -->
+        <div class="bg-white p-3.5 rounded-2xl border border-sage-200 space-y-2 shadow-sm">
+          <h3 class="text-xs font-bold text-sage-900 flex justify-between">
+            <span>Dessert Ratio</span>
+            <span class="text-[10px] text-sage-800/60 font-normal" id="stat-ratio-label">0 Cakes vs 0 Slices</span>
+          </h3>
+          <div class="w-full h-3 bg-sage-100 rounded-full overflow-hidden flex">
+            <div id="stat-bar-cakes" class="bg-sage-700 h-full transition-all duration-500" style="width: 50%"></div>
+            <div id="stat-bar-slices" class="bg-champagne-500 h-full transition-all duration-500" style="width: 50%"></div>
+          </div>
+          <div class="flex justify-between text-[10px] text-sage-800/70 font-semibold pt-0.5">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-sage-700"></span> Wedding Cakes</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-champagne-500"></span> Dessert Slices</span>
+          </div>
+        </div>
+
+        <!-- Leaderboard Bakers -->
+        <div class="bg-white p-3.5 rounded-2xl border border-sage-200 space-y-3 shadow-sm">
+          <h3 class="text-xs font-bold text-sage-900 flex items-center justify-between">
+            <span>Top Bakery Contenders</span>
+            <i class="fa-solid fa-crown text-champagne-500 text-xs"></i>
+          </h3>
+          <div id="bakery-rank-list" class="space-y-2.5">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Export / Import -->
+        <div class="bg-sage-100/70 p-3 rounded-2xl border border-sage-200 space-y-2">
+          <h3 class="text-xs font-bold text-sage-900">Backup & Share Data</h3>
+          <div class="flex gap-2">
+            <button onclick="exportDataJSON()" class="flex-1 py-1.5 bg-white hover:bg-sage-50 text-sage-800 text-xs font-semibold rounded-xl border border-sage-200 transition shadow-sm flex items-center justify-center gap-1">
+              <i class="fa-solid fa-download text-[10px] text-champagne-600"></i> Export JSON
+            </button>
+            <button onclick="document.getElementById('import-file-input').click()" class="flex-1 py-1.5 bg-white hover:bg-sage-50 text-sage-800 text-xs font-semibold rounded-xl border border-sage-200 transition shadow-sm flex items-center justify-center gap-1">
+              <i class="fa-solid fa-upload text-[10px] text-champagne-600"></i> Import JSON
+            </button>
+            <input type="file" id="import-file-input" accept=".json" class="hidden" onchange="importDataJSON(event)" />
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bg-white border-t border-sage-200 px-6 py-2 flex justify-between items-center z-30 shadow-lg">
+      <button onclick="switchTab('leaderboard')" id="nav-leaderboard" class="flex flex-col items-center gap-0.5 text-sage-700 transition">
+        <i class="fa-solid fa-ranking-star text-lg"></i>
+        <span class="text-[10px] font-semibold">Rankings</span>
+      </button>
+
+      <button onclick="switchTab('add')" id="nav-add" class="flex flex-col items-center gap-0.5 text-sage-800/50 hover:text-sage-700 transition">
+        <div class="w-10 h-10 -mt-5 bg-gradient-to-r from-sage-700 to-sage-800 rounded-full text-white flex items-center justify-center shadow-lg border-2 border-white">
+          <i class="fa-solid fa-plus text-base"></i>
+        </div>
+        <span class="text-[10px] font-semibold mt-0.5">Add Sample</span>
+      </button>
+
+      <button onclick="switchTab('stats')" id="nav-stats" class="flex flex-col items-center gap-0.5 text-sage-800/50 hover:text-sage-700 transition">
+        <i class="fa-solid fa-chart-pie text-lg"></i>
+        <span class="text-[10px] font-semibold">Stats</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- JavaScript Application Logic -->
+  <script>
+    // --- Tom & Sophie Wedding Seed Samples ---
+    const SEED_DATA = [
+      {
+        id: "wedding-1",
+        name: "Tier 1: Raspberry & White Chocolate Sponge",
+        bakery: "Sweet Artistry Bakery",
+        location: "Melbourne, Vic",
+        category: "Wedding Cake",
+        costPerServing: 6.50,
+        scores: { flavor: 5.0, texture: 4.8, icing: 4.9, value: 4.5 },
+        overallScore: 4.8,
+        image: "https://images.unsplash.com/photo-1535141192574-5d4897c13136?auto=format&fit=crop&w=400&q=80",
+        notes: "Flawless moist white sponge filled with tart raspberry compote and silky white chocolate buttercream. Sophie's personal favorite!",
+        tags: ["Moist Sponge", "Tart Berry", "Silky Buttercream", "Guest Favorite"],
+        createdAt: "2026-10-15T10:30:00Z"
+      },
+      {
+        id: "wedding-2",
+        name: "Passionfruit Curd & Vanilla Bean Layer Cake",
+        bakery: "Lune Dessert Studio",
+        location: "Yarra Valley",
+        category: "Wedding Cake",
+        costPerServing: 8.00,
+        scores: { flavor: 4.8, texture: 4.7, icing: 4.8, value: 4.2 },
+        overallScore: 4.6,
+        image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=400&q=80",
+        notes: "Very refreshing citrus hit. Smooth Swiss meringue buttercream icing with delicate dried flower garnishes.",
+        tags: ["Zesty Citrus", "Swiss Meringue", "Elegant Finish"],
+        createdAt: "2026-10-10T14:15:00Z"
+      },
+      {
+        id: "wedding-3",
+        name: "Traditional Salted Caramel Slice",
+        bakery: "Rustic Hearth Catering",
+        location: "Mornington Peninsula",
+        category: "Dessert Slice",
+        costPerServing: 4.00,
+        scores: { flavor: 4.7, texture: 4.6, icing: 4.5, value: 4.8 },
+        overallScore: 4.7,
+        image: "https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=400&q=80",
+        notes: "Crisp shortbread base topped with chewy golden caramel and dark chocolate glaze. Great option for dessert table!",
+        tags: ["Crisp Base", "Salted Caramel", "Great Portion"],
+        createdAt: "2026-10-08T11:00:00Z"
+      },
+      {
+        id: "wedding-4",
+        name: "Lemon Meringue Tart Slice",
+        bakery: "Flour & Bloom",
+        location: "Geelong, Vic",
+        category: "Dessert Slice",
+        costPerServing: 5.50,
+        scores: { flavor: 4.4, texture: 4.5, icing: 4.2, value: 4.3 },
+        overallScore: 4.4,
+        image: "🍰",
+        notes: "Torched meringue topping with a crisp pastry shell. Very bright flavor profile.",
+        tags: ["Tangy Icing", "Flaky Pastry"],
+        createdAt: "2026-10-05T09:20:00Z"
+      }
+    ];
+
+    const AVAILABLE_TAGS = [
+      "Moist Sponge", "Silky Buttercream", "Crisp Base", "Flaky Pastry", 
+      "Zesty Citrus", "Rich Ganache", "Guest Favorite", "Elegant Finish", 
+      "Too Sweet", "Perfect Balance", "Great Portion"
+    ];
+
+    // App State
+    let ratings = [];
+    let currentCategoryFilter = 'All';
+    let selectedImage = '🎂';
+    let selectedTags = [];
+
+    // --- Init ---
+    window.addEventListener('DOMContentLoaded', () => {
+      loadRatings();
+      initTags();
+      renderLeaderboard();
+      updateStats();
+    });
+
+    function loadRatings() {
+      const stored = localStorage.getItem('tom_sophie_wedding_cake_ratings');
+      if (stored) {
+        try {
+          ratings = JSON.parse(stored);
+          // Ensure backward compatibility for items without costPerServing
+          ratings = ratings.map(r => ({
+            ...r,
+            costPerServing: r.costPerServing !== undefined ? parseFloat(r.costPerServing) : 5.00
+          }));
+        } catch(e) {
+          ratings = [...SEED_DATA];
+        }
+      } else {
+        ratings = [...SEED_DATA];
+        saveRatings();
+      }
+    }
+
+    function saveRatings() {
+      localStorage.setItem('tom_sophie_wedding_cake_ratings', JSON.stringify(ratings));
+    }
+
+    // --- Navigation ---
+    function switchTab(tabName) {
+      const screens = document.querySelectorAll('.view-screen');
+      screens.forEach(s => {
+        s.classList.remove('active-screen');
+        s.classList.add('hidden-screen');
+      });
+
+      const selectedScreen = document.getElementById(`tab-${tabName}`);
+      if (selectedScreen) {
+        selectedScreen.classList.remove('hidden-screen');
+        selectedScreen.classList.add('active-screen');
+      }
+
+      const navBtns = {
+        leaderboard: document.getElementById('nav-leaderboard'),
+        add: document.getElementById('nav-add'),
+        stats: document.getElementById('nav-stats')
+      };
+
+      Object.keys(navBtns).forEach(key => {
+        if (key === tabName) {
+          navBtns[key].classList.remove('text-sage-800/50');
+          navBtns[key].classList.add('text-sage-700');
+        } else {
+          if (key !== 'add') {
+            navBtns[key].classList.remove('text-sage-700');
+            navBtns[key].classList.add('text-sage-800/50');
+          }
+        }
+      });
+
+      if (tabName === 'stats') {
+        updateStats();
+      }
+    }
+
+    // --- Filter & Search ---
+    function setCategoryFilter(cat) {
+      currentCategoryFilter = cat;
+      ['All', 'Wedding Cake', 'Dessert Slice'].forEach(c => {
+        const btn = document.getElementById(`filter-${c.toLowerCase()}`);
+        if (btn) {
+          if (c === cat) {
+            btn.className = "flex-1 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm bg-sage-700 text-white";
+          } else {
+            btn.className = "flex-1 py-1.5 rounded-xl text-xs font-semibold text-sage-800 hover:bg-ivory-50 transition-all";
+          }
+        }
+      });
+      renderLeaderboard();
+    }
+
+    function clearSearch() {
+      const searchInput = document.getElementById('search-input');
+      searchInput.value = '';
+      document.getElementById('clear-search').classList.add('hidden');
+      renderLeaderboard();
+    }
+
+    // --- Render Rankings ---
+    function renderLeaderboard() {
+      const container = document.getElementById('leaderboard-list');
+      const emptyState = document.getElementById('empty-state');
+      const searchQuery = (document.getElementById('search-input').value || '').toLowerCase().trim();
+      const sortBy = document.getElementById('sort-select').value;
+
+      document.getElementById('clear-search').classList.toggle('hidden', searchQuery.length === 0);
+
+      let filtered = ratings.filter(item => {
+        const matchesCategory = currentCategoryFilter === 'All' || item.category === currentCategoryFilter;
+        const matchesSearch = item.name.toLowerCase().includes(searchQuery) || item.bakery.toLowerCase().includes(searchQuery) || (item.location && item.location.toLowerCase().includes(searchQuery));
+        return matchesCategory && matchesSearch;
+      });
+
+      filtered.sort((a, b) => {
+        if (sortBy === 'rating') return b.overallScore - a.overallScore;
+        if (sortBy === 'cost-low') return a.costPerServing - b.costPerServing;
+        if (sortBy === 'cost-high') return b.costPerServing - a.costPerServing;
+        if (sortBy === 'recent') return new Date(b.createdAt) - new Date(a.createdAt);
+        if (sortBy === 'bakery') return a.bakery.localeCompare(b.bakery);
+        return 0;
+      });
+
+      document.getElementById('item-count-label').innerText = `Showing ${filtered.length} ${filtered.length === 1 ? 'entry' : 'entries'}`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      container.innerHTML = filtered.map((item, index) => {
+        let rankBadgeClass = "bg-sage-100 text-sage-800";
+        let rankText = `#${index + 1}`;
+        if (sortBy === 'rating') {
+          if (index === 0) rankBadgeClass = "bg-champagne-500 text-white font-bold shadow-sm";
+          if (index === 1) rankBadgeClass = "bg-slate-300 text-slate-800 font-bold";
+          if (index === 2) rankBadgeClass = "bg-amber-700/20 text-amber-900 font-bold";
+        }
+
+        const isUrl = item.image && item.image.startsWith('http');
+        const isBase64 = item.image && item.image.startsWith('data:');
+        const hasImg = isUrl || isBase64;
+
+        const costDisplay = (item.costPerServing !== undefined && !isNaN(item.costPerServing))
+          ? `$${parseFloat(item.costPerServing).toFixed(2)} / slice`
+          : 'N/A';
+
+        return `
+          <div class="bg-white rounded-2xl p-3 border border-sage-200 shadow-sm transition hover:shadow-md space-y-2">
+            <div class="flex items-start space-x-3">
+              
+              <!-- Thumbnail -->
+              <div class="relative w-16 h-16 rounded-xl overflow-hidden bg-sage-50 flex items-center justify-center shrink-0 border border-sage-200">
+                ${hasImg 
+                  ? `<img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentNode.innerHTML='🎂';" />` 
+                  : `<span class="text-3xl">${item.image || '🎂'}</span>`
+                }
+                <span class="absolute top-1 left-1 text-[9px] px-1.5 py-0.5 rounded-full ${rankBadgeClass}">
+                  ${rankText}
+                </span>
+              </div>
+
+              <!-- Content -->
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-start">
+                  <h3 class="font-serif font-bold text-sage-900 text-sm truncate leading-snug">${item.name}</h3>
+                  <div class="flex items-center space-x-1 bg-champagne-100 border border-champagne-200 px-2 py-0.5 rounded-lg shrink-0">
+                    <i class="fa-solid fa-star text-champagne-600 text-[10px]"></i>
+                    <span class="font-serif font-bold text-xs text-champagne-700">${item.overallScore.toFixed(1)}</span>
+                  </div>
+                </div>
+
+                <p class="text-[11px] font-medium text-sage-800/80 truncate">
+                  <i class="fa-solid fa-store text-[10px] mr-1 text-sage-600"></i>${item.bakery}
+                  ${item.location ? `<span class="text-sage-800/50"> • ${item.location}</span>` : ''}
+                </p>
+
+                <!-- Category & Cost Badges -->
+                <div class="flex items-center gap-1.5 mt-1">
+                  <span class="text-[9px] px-1.5 py-0.2 rounded bg-sage-100 text-sage-800 font-semibold border border-sage-200">
+                    ${item.category === 'Wedding Cake' ? '🎂 Wedding Cake' : '🍰 Dessert Slice'}
+                  </span>
+                  <span class="text-[9px] px-1.5 py-0.2 rounded bg-champagne-100 text-champagne-700 font-bold border border-champagne-200 flex items-center gap-0.5">
+                    <i class="fa-solid fa-tag text-[8px]"></i> ${costDisplay}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tags -->
+            ${(item.tags && item.tags.length > 0) ? `
+              <div class="flex flex-wrap gap-1 pt-0.5">
+                ${item.tags.map(t => `<span class="text-[9px] px-1.5 py-0.2 rounded bg-ivory-100 text-sage-800/70 border border-sage-200">${t}</span>`).join('')}
+              </div>
+            ` : ''}
+
+            <!-- Notes -->
+            ${item.notes ? `<p class="text-[11px] text-sage-800/80 italic bg-ivory-100/70 p-2 rounded-xl border border-sage-100 leading-relaxed">"${item.notes}"</p>` : ''}
+
+            <!-- Subscore Breakdown Accordion -->
+            <details class="group text-[11px] border-t border-sage-100 pt-1.5">
+              <summary class="cursor-pointer text-sage-700 font-semibold flex items-center justify-between text-[10px] select-none hover:text-sage-900">
+                <span>View Breakdown & Costing</span>
+                <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform text-[9px]"></i>
+              </summary>
+              <div class="grid grid-cols-2 gap-x-3 gap-y-1 pt-2 pb-1 text-sage-800">
+                <div class="flex justify-between"><span>Flavor & Moisture:</span> <strong class="text-champagne-600">${item.scores.flavor.toFixed(1)}</strong></div>
+                <div class="flex justify-between"><span>Structure & Layering:</span> <strong class="text-champagne-600">${item.scores.texture.toFixed(1)}</strong></div>
+                <div class="flex justify-between"><span>Icing & Presentation:</span> <strong class="text-champagne-600">${item.scores.icing.toFixed(1)}</strong></div>
+                <div class="flex justify-between"><span>Value / Sliceability:</span> <strong class="text-champagne-600">${item.scores.value.toFixed(1)}</strong></div>
+                <div class="col-span-2 flex justify-between border-t border-sage-100 pt-1 mt-0.5">
+                  <span class="font-semibold text-sage-900">Cost Per Serving:</span>
+                  <strong class="text-champagne-700 font-bold">${costDisplay}</strong>
+                </div>
+              </div>
+              <div class="flex justify-end gap-2 pt-2 border-t border-sage-100 mt-1">
+                <button onclick="editRating('${item.id}')" class="text-[10px] text-sage-800 hover:text-sage-900 font-semibold px-2 py-0.5 rounded bg-sage-100 border border-sage-200">
+                  <i class="fa-solid fa-pen-to-square mr-1"></i>Edit
+                </button>
+                <button onclick="deleteRating('${item.id}')" class="text-[10px] text-red-600 hover:text-red-700 font-semibold px-2 py-0.5 rounded bg-red-50 border border-red-200">
+                  <i class="fa-solid fa-trash mr-1"></i>Delete
+                </button>
+              </div>
+            </details>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // --- Calculator Helper ---
+    function toggleCalcModal() {
+      const tool = document.getElementById('calc-tool');
+      tool.classList.toggle('hidden');
+    }
+
+    function runCostCalc() {
+      const total = parseFloat(document.getElementById('calc-total').value) || 0;
+      const guests = parseFloat(document.getElementById('calc-guests').value) || 0;
+      const resultSpan = document.getElementById('calc-result');
+
+      if (total > 0 && guests > 0) {
+        const perServing = (total / guests).toFixed(2);
+        resultSpan.innerText = `$${perServing} / slice`;
+      } else {
+        resultSpan.innerText = `$0.00 / slice`;
+      }
+    }
+
+    function applyCostCalc() {
+      const total = parseFloat(document.getElementById('calc-total').value) || 0;
+      const guests = parseFloat(document.getElementById('calc-guests').value) || 0;
+      if (total > 0 && guests > 0) {
+        const perServing = (total / guests).toFixed(2);
+        document.getElementById('cost-per-serving').value = perServing;
+        toggleCalcModal();
+      }
+    }
+
+    // --- Form Logic ---
+    function initTags() {
+      const container = document.getElementById('tag-pills-container');
+      container.innerHTML = AVAILABLE_TAGS.map(tag => `
+        <button type="button" onclick="toggleTag('${tag}', this)" 
+          class="tag-pill text-[10px] font-semibold px-2.5 py-1 rounded-full border border-sage-200 bg-white text-sage-800 hover:bg-sage-100 transition shadow-sm">
+          + ${tag}
+        </button>
+      `).join('');
+    }
+
+    function toggleTag(tag, btn) {
+      if (selectedTags.includes(tag)) {
+        selectedTags = selectedTags.filter(t => t !== tag);
+        btn.className = "tag-pill text-[10px] font-semibold px-2.5 py-1 rounded-full border border-sage-200 bg-white text-sage-800 hover:bg-sage-100 transition shadow-sm";
+        btn.innerText = `+ ${tag}`;
+      } else {
+        selectedTags.push(tag);
+        btn.className = "tag-pill text-[10px] font-semibold px-2.5 py-1 rounded-full border border-sage-700 bg-sage-700 text-white transition shadow-sm";
+        btn.innerText = `✓ ${tag}`;
+      }
+    }
+
+    function selectEmojiPreset(emoji) {
+      selectedImage = emoji;
+      document.getElementById('preview-emoji').innerText = emoji;
+      document.getElementById('preview-emoji').classList.remove('hidden');
+      document.getElementById('preview-img').classList.add('hidden');
+    }
+
+    function handleImageUpload(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          selectedImage = evt.target.result;
+          document.getElementById('preview-img').src = selectedImage;
+          document.getElementById('preview-img').classList.remove('hidden');
+          document.getElementById('preview-emoji').classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function updateCalculatedScore() {
+      const flavor = parseFloat(document.getElementById('score-flavor').value);
+      const texture = parseFloat(document.getElementById('score-texture').value);
+      const icing = parseFloat(document.getElementById('score-icing').value);
+      const value = parseFloat(document.getElementById('score-value').value);
+
+      document.getElementById('score-flavor-val').innerText = flavor.toFixed(1);
+      document.getElementById('score-texture-val').innerText = texture.toFixed(1);
+      document.getElementById('score-icing-val').innerText = icing.toFixed(1);
+      document.getElementById('score-value-val').innerText = value.toFixed(1);
+
+      const overall = ((flavor + texture + icing + value) / 4);
+      document.getElementById('calc-overall-score').innerText = `${overall.toFixed(1)} ⭐`;
+    }
+
+    function triggerConfetti() {
+      try {
+        confetti({
+          particleCount: 50,
+          spread: 60,
+          origin: { y: 0.8 },
+          colors: ['#6d826d', '#d4af37', '#e8a598', '#fdf8ec']
+        });
+      } catch(e) {}
+    }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+
+      const editId = document.getElementById('edit-id').value;
+      const name = document.getElementById('item-name').value.trim();
+      const bakery = document.getElementById('bakery-name').value.trim();
+      const location = document.getElementById('bakery-location').value.trim();
+      const category = document.querySelector('input[name="form-category"]:checked').value;
+      const costPerServing = parseFloat(document.getElementById('cost-per-serving').value) || 0;
+      
+      const flavor = parseFloat(document.getElementById('score-flavor').value);
+      const texture = parseFloat(document.getElementById('score-texture').value);
+      const icing = parseFloat(document.getElementById('score-icing').value);
+      const value = parseFloat(document.getElementById('score-value').value);
+      const overallScore = parseFloat(((flavor + texture + icing + value) / 4).toFixed(1));
+
+      const notes = document.getElementById('tasting-notes').value.trim();
+
+      if (editId) {
+        const idx = ratings.findIndex(r => r.id === editId);
+        if (idx !== -1) {
+          ratings[idx] = {
+            ...ratings[idx],
+            name,
+            bakery,
+            location,
+            category,
+            costPerServing,
+            scores: { flavor, texture, icing, value },
+            overallScore,
+            image: selectedImage,
+            notes,
+            tags: [...selectedTags]
+          };
+        }
+      } else {
+        const newEntry = {
+          id: 'wedding-' + Date.now(),
+          name,
+          bakery,
+          location,
+          category,
+          costPerServing,
+          scores: { flavor, texture, icing, value },
+          overallScore,
+          image: selectedImage,
+          notes,
+          tags: [...selectedTags],
+          createdAt: new Date().toISOString()
+        };
+        ratings.unshift(newEntry);
+      }
+
+      saveRatings();
+      triggerConfetti();
+      resetForm();
+      renderLeaderboard();
+      switchTab('leaderboard');
+    }
+
+    function editRating(id) {
+      const item = ratings.find(r => r.id === id);
+      if (!item) return;
+
+      document.getElementById('edit-id').value = item.id;
+      document.getElementById('form-title').innerText = 'Edit Tasting Sample';
+      document.getElementById('cancel-edit-btn').classList.remove('hidden');
+
+      document.getElementById('item-name').value = item.name;
+      document.getElementById('bakery-name').value = item.bakery;
+      document.getElementById('bakery-location').value = item.location || '';
+      document.getElementById('cost-per-serving').value = item.costPerServing || 0;
+
+      const catRadio = document.querySelector(`input[name="form-category"][value="${item.category}"]`);
+      if (catRadio) catRadio.checked = true;
+
+      document.getElementById('score-flavor').value = item.scores.flavor;
+      document.getElementById('score-texture').value = item.scores.texture;
+      document.getElementById('score-icing').value = item.scores.icing;
+      document.getElementById('score-value').value = item.scores.value;
+
+      document.getElementById('tasting-notes').value = item.notes || '';
+
+      selectedImage = item.image;
+      if (selectedImage.startsWith('http') || selectedImage.startsWith('data:')) {
+        document.getElementById('preview-img').src = selectedImage;
+        document.getElementById('preview-img').classList.remove('hidden');
+        document.getElementById('preview-emoji').classList.add('hidden');
+      } else {
+        selectEmojiPreset(selectedImage || '🎂');
+      }
+
+      selectedTags = [...(item.tags || [])];
+      initTags();
+
+      const tagBtns = document.querySelectorAll('.tag-pill');
+      tagBtns.forEach(btn => {
+        const tagName = btn.innerText.replace('+ ', '').replace('✓ ', '');
+        if (selectedTags.includes(tagName)) {
+          btn.className = "tag-pill text-[10px] font-semibold px-2.5 py-1 rounded-full border border-sage-700 bg-sage-700 text-white transition shadow-sm";
+          btn.innerText = `✓ ${tagName}`;
+        }
+      });
+
+      updateCalculatedScore();
+      switchTab('add');
+    }
+
+    function cancelEdit() {
+      resetForm();
+      switchTab('leaderboard');
+    }
+
+    function resetForm() {
+      document.getElementById('edit-id').value = '';
+      document.getElementById('form-title').innerText = 'Rate a Tasting Sample';
+      document.getElementById('cancel-edit-btn').classList.add('hidden');
+      document.getElementById('rating-form').reset();
+      
+      selectedImage = '🎂';
+      selectEmojiPreset('🎂');
+      selectedTags = [];
+      initTags();
+
+      document.getElementById('score-flavor').value = 4.0;
+      document.getElementById('score-texture').value = 4.0;
+      document.getElementById('score-icing').value = 4.0;
+      document.getElementById('score-value').value = 4.0;
+      updateCalculatedScore();
+    }
+
+    function deleteRating(id) {
+      if (confirm('Are you sure you want to remove this sample from the leaderboard?')) {
+        ratings = ratings.filter(r => r.id !== id);
+        saveRatings();
+        renderLeaderboard();
+        updateStats();
+      }
+    }
+
+    // --- Stats & Analytics ---
+    function updateStats() {
+      const totalCount = ratings.length;
+      document.getElementById('stat-total-count').innerText = totalCount;
+
+      if (totalCount === 0) {
+        document.getElementById('stat-avg-score').innerText = '0.0';
+        document.getElementById('stat-avg-cost').innerText = '$0.00';
+        document.getElementById('stat-top-bakery').innerText = '-';
+        document.getElementById('stat-ratio-label').innerText = '0 Cakes vs 0 Slices';
+        return;
+      }
+
+      const avgScore = (ratings.reduce((acc, curr) => acc + curr.overallScore, 0) / totalCount).toFixed(1);
+      document.getElementById('stat-avg-score').innerText = avgScore;
+
+      const totalCost = ratings.reduce((acc, curr) => acc + (curr.costPerServing || 0), 0);
+      const avgCost = (totalCost / totalCount).toFixed(2);
+      document.getElementById('stat-avg-cost').innerText = `$${avgCost}`;
+
+      const cakeCount = ratings.filter(r => r.category === 'Wedding Cake').length;
+      const sliceCount = ratings.filter(r => r.category === 'Dessert Slice').length;
+      const cakePct = Math.round((cakeCount / totalCount) * 100);
+
+      document.getElementById('stat-bar-cakes').style.width = `${cakePct}%`;
+      document.getElementById('stat-bar-slices').style.width = `${100 - cakePct}%`;
+      document.getElementById('stat-ratio-label').innerText = `${cakeCount} Cakes vs ${sliceCount} Slices`;
+
+      const bakeryScores = {};
+      ratings.forEach(r => {
+        if (!bakeryScores[r.bakery]) {
+          bakeryScores[r.bakery] = { totalScore: 0, totalCost: 0, count: 0, location: r.location };
+        }
+        bakeryScores[r.bakery].totalScore += r.overallScore;
+        bakeryScores[r.bakery].totalCost += (r.costPerServing || 0);
+        bakeryScores[r.bakery].count += 1;
+      });
+
+      const bakeryList = Object.keys(bakeryScores).map(name => ({
+        name,
+        avgScore: bakeryScores[name].totalScore / bakeryScores[name].count,
+        avgCost: bakeryScores[name].totalCost / bakeryScores[name].count,
+        count: bakeryScores[name].count,
+        location: bakeryScores[name].location
+      })).sort((a, b) => b.avgScore - a.avgScore);
+
+      const rankContainer = document.getElementById('bakery-rank-list');
+      rankContainer.innerHTML = bakeryList.slice(0, 4).map((b, idx) => `
+        <div class="flex items-center justify-between text-xs">
+          <div class="flex items-center space-x-2 truncate">
+            <span class="w-5 h-5 rounded-full bg-sage-100 text-sage-800 text-[10px] font-bold flex items-center justify-center shrink-0">
+              #${idx + 1}
+            </span>
+            <span class="font-semibold text-sage-900 truncate">${b.name}</span>
+          </div>
+          <div class="flex items-center space-x-2 shrink-0">
+            <span class="text-champagne-600 font-bold">${b.avgScore.toFixed(1)} ⭐</span>
+            <span class="text-[10px] text-sage-800/60 font-semibold bg-sage-50 px-1.5 py-0.5 rounded border border-sage-200">$${b.avgCost.toFixed(2)}/slice</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // --- Data Export & Import ---
+    function exportDataJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(ratings, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `Tom_Sophie_Wedding_Cakes_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importDataJSON(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const imported = JSON.parse(evt.target.result);
+          if (Array.isArray(imported)) {
+            ratings = imported;
+            saveRatings();
+            renderLeaderboard();
+            updateStats();
+            alert('Wedding cake ratings successfully imported!');
+          } else {
+            alert('Invalid JSON file format.');
+          }
+        } catch(err) {
+          alert('Error reading JSON file.');
+        }
+      };
+      reader.readAsText(file);
+    }
+  </script>
+</body>
+</html>
