@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.theteepeepee.twa",
+        "sha256_cert_fingerprints": ["A4:BB:40:07:5A:51:6C:47:5C:F6:ED:EA:68:07:B0:83:9E:F2:6B:2A:85:FD:66:B4:C9:04:6F:D4:29:81:78:B4"]
+      }
+    }]
