@@ -1,7 +1,7 @@
 {
   "background_color": "#1543f4",
   "dir": "ltr",
-  "display": "standalone",
+  "display": "fullscreen",
   "name": "Tom & Sophie Cake Rater",
   "orientation": "portrait",
   "scope": "./",
